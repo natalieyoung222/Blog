@@ -1,0 +1,11 @@
+# We are first going to go over how to run a backwards stepwise regression to eliminate unneccessary variables. 
+# BACKWARDS REGRESSION 
+
+# Fit a linear model
+lm_model <- lm(response ~ ., data = your_data)
+
+# Perform backward selection
+backward_model <- step(lm_model, direction = "backward")
+
+# View the summary of the final model
+summary(backward_model)
