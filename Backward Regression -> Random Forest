@@ -9,3 +9,36 @@ backward_model <- step(lm_model, direction = "backward")
 
 # View the summary of the final model
 summary(backward_model)
+## The step() function automatically performs backward selection, eliminating variables based on the AIC criterion. The resulting backward_model will contain the final model after the elimination process.
+
+# We will now run a random forest model excluding the eliminated variables from the backwards regression model. 
+#RANDOM FOREST 
+
+# Extract the names of eliminated variables from the backward model
+eliminated_vars <- setdiff(names(lm_model$coefficients), names(backward_model$coefficients))
+
+# Remove eliminated variables from the dataset
+data_rf <- your_data[, -which(names(your_data) %in% eliminated_vars)]
+
+# Split the data into training and testing sets
+set.seed(123)
+train_indices_rf <- sample(1:nrow(data_rf), 0.7 * nrow(data_rf))
+train_data_rf <- data_rf[train_indices_rf, ]
+test_data_rf <- data_rf[-train_indices_rf, ]
+
+# Train the random forest model
+rf_model <- randomForest(response ~ ., data = train_data_rf, ntree = 500)
+
+# Make predictions on the test data
+predictions_rf <- predict(rf_model, newdata = test_data_rf)
+
+# Evaluate the model
+confusion_matrix_rf <- table(predictions_rf, test_data_rf$response)
+accuracy_rf <- sum(diag(confusion_matrix_rf)) / sum(confusion_matrix_rf)
+
+# View the variable importance
+var_importance <- importance(rf_model)
+print(var_importance)
+
+# This code first identifies the eliminated variables from the backward linear regression model and then removes those variables from the dataset. After that, it proceeds to train a random forest model with the modified dataset and evaluates its performance.
+# Make sure to replace 'response' with the actual name of your response variable and adjust the code according to your specific dataset structure and column names.
